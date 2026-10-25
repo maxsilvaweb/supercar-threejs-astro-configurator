@@ -25,7 +25,7 @@ A 3D garage in the browser. Walk a warehouse of twelve supercars, pick one, and 
 | ![Paint panel on the Lamborghini Revuelto](docs/screenshots/configurator-paint.jpg) | ![Finish panel on the Bugatti Chiron](docs/screenshots/configurator-finish.jpg) |
 | **Paint** – swatches or a custom colour per paint group | **Finish** – gloss, satin, matte, metallic and carbon |
 | ![Spec panel on the Ferrari SF-25](docs/screenshots/configurator-spec.jpg) | ![Cabin view in the Lamborghini Revuelto](docs/screenshots/configurator-cabin.jpg) |
-| **Spec** – engine and performance for every car | **Cabin** – open a door and sit in the driver's seat |
+| **Spec** – engine and performance for every car | **Cabin** – open a door and sit in the seat |
 
 ## Tech
 
