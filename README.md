@@ -1,5 +1,19 @@
 # Supercar threejs astro configurator
 
+<a href="https://astro.build"><img src="https://cdn.simpleicons.org/astro/FF5D01" width="40" height="40" alt="Astro"></a>
+&nbsp;
+<a href="https://react.dev"><img src="https://cdn.simpleicons.org/react/61DAFB" width="40" height="40" alt="React"></a>
+&nbsp;
+<a href="https://www.typescriptlang.org"><img src="https://cdn.simpleicons.org/typescript/3178C6" width="40" height="40" alt="TypeScript"></a>
+&nbsp;
+<a href="https://threejs.org"><img src="https://cdn.simpleicons.org/threedotjs/000000" width="40" height="40" alt="Three.js"></a>
+&nbsp;
+<a href="https://tailwindcss.com"><img src="https://cdn.simpleicons.org/tailwindcss/06B6D4" width="40" height="40" alt="Tailwind CSS"></a>
+&nbsp;
+<a href="https://vite.dev"><img src="https://cdn.simpleicons.org/vite/646CFF" width="40" height="40" alt="Vite"></a>
+&nbsp;
+<a href="https://www.radix-ui.com"><img src="https://cdn.simpleicons.org/radixui/161618" width="40" height="40" alt="Radix UI"></a>
+
 A 3D garage in the browser. Walk a warehouse of twelve supercars, pick one, and configure its paint, finish, wheels and aero, then open the door, sit in the cabin and start the engine.
 
 **[▶ Live demo](https://supercar-threejs-astra-configurator.vercel.app/)** · desktop only
