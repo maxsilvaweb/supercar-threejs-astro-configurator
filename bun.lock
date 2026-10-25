@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "car-modeler",
+      "name": "supercar-threejs-astro-configurator",
       "dependencies": {
         "@astrojs/react": "^4.4.2",
         "@astrojs/sitemap": "^3.7.4",
