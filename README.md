@@ -9,7 +9,7 @@ A 3D garage in the browser. Walk a warehouse of twelve supercars, pick one, and 
 | | |
 | --- | --- |
 | ![Ferrari SF-25](public/ui/previews/ferrari-sf25.jpg) | ![Lamborghini Revuelto](public/ui/previews/lamborghini-revuelto.jpg) |
-| ![McLaren 765LT](public/ui/previews/mclaren-765lt.jpg) | ![Bugatti Chiron](public/ui/previews/bugatti-chiron.jpg) |
+| ![Aston Martin Valhalla](public/ui/previews/aston-martin-valhalla.jpg) | ![Bugatti Chiron](public/ui/previews/bugatti-chiron.jpg) |
 
 ## Tech
 
