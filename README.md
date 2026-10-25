@@ -121,13 +121,13 @@ public/
 ## Run
 
 ```bash
-npm install
-npm run dev
+bun install
+bun dev
 ```
 
 Open `http://127.0.0.1:4321`. The studio is desktop only.
 
 ```bash
-npm run build    # static build to dist/
-npm run preview  # serve the build locally
+bun run build    # static build to dist/
+bun run preview  # serve the build locally
 ```
