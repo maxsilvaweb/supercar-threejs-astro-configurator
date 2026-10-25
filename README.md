@@ -25,6 +25,15 @@ A 3D garage in the browser. Walk a warehouse of twelve supercars, pick one, and 
 | ![Ferrari SF-25](public/ui/previews/ferrari-sf25.jpg) | ![Lamborghini Revuelto](public/ui/previews/lamborghini-revuelto.jpg) |
 | ![Aston Martin Valhalla](public/ui/previews/aston-martin-valhalla.jpg) | ![Bugatti Chiron](public/ui/previews/bugatti-chiron.jpg) |
 
+## The configurator
+
+| | |
+| --- | --- |
+| ![Paint panel on the Lamborghini Revuelto](docs/screenshots/configurator-paint.jpg) | ![Finish panel on the Bugatti Chiron](docs/screenshots/configurator-finish.jpg) |
+| **Paint** – swatches or a custom colour per paint group | **Finish** – gloss, satin, matte, metallic and carbon |
+| ![Spec panel on the Ferrari SF-25](docs/screenshots/configurator-spec.jpg) | ![Cabin view in the Lamborghini Revuelto](docs/screenshots/configurator-cabin.jpg) |
+| **Spec** – engine and performance for every car | **Cabin** – open a door and sit in the driver's seat |
+
 ## Tech
 
 <a href="https://astro.build"><img src="https://cdn.simpleicons.org/astro/FF5D01" width="40" height="40" alt="Astro"></a>
