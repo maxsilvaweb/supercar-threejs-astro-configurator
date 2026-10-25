@@ -1,4 +1,4 @@
-# Supercar Configurator · silvaweb studio
+# supercar threejs astro configurator
 
 A 3D garage in the browser. Walk a warehouse of twelve supercars, pick one, and configure its paint, finish, wheels and aero, then open the door, sit in the cabin and start the engine.
 
