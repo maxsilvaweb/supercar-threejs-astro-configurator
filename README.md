@@ -151,3 +151,9 @@ bun run models:check           # verify every model resolves (runs before each b
 Each upload is named by a hash of its contents (`models/rim/rim.ca31db284a2f.glb`), so a changed model gets a new URL and needs no manual cache-busting. Uploading needs `BLOB_READ_WRITE_TOKEN` in `.env.local`, copied from the Blob store page in the Vercel dashboard.
 
 To add a model, put the GLB in `public/models/<slug>/`, reference it with `modelUrl("<slug>/<slug>.glb")` in `src/lib/constants.ts`, then run `bun run models:upload`. Car GLBs must keep their node, mesh and material names, so don't run the default `gltf-transform optimize` on them.
+
+## Engine bay
+
+The Engine section of the configure panel moves the camera to a V8 on a stand in the garage, where you can recolour it, tune it, explode it and rev it. Every car uses the same V8, and tuning works from each car's published figures (`engineBase` in `src/cars/*.ts`). The tuned numbers are illustrative.
+
+The engine is [NVIDIA SimReady `engineAssembly_v8_engine_a01`](https://huggingface.co/datasets/nvidia/simready-assets/tree/main/engineAssembly_v8_engine_a01), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It's converted from USD with `scripts/build-engine-glb.py` in Blender 4.2 or later. The header of that script lists the steps.

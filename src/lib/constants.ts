@@ -93,6 +93,7 @@ export const PORSCHE_GT4_BADGE = "/ui/brands/porsche-crest.png";
 export const RIM_MODEL = modelUrl("rim/rim.glb");
 export const STUDIO_GARAGE_MODEL = modelUrl("studio-garage/studio-garage.glb");
 export const CONFIG_GARAGE_MODEL = modelUrl("config-garage/config-garage.glb");
+export const ENGINE_V8_MODEL = modelUrl("engine-v8/engine-v8.glb");
 
 export const ENZO_SIDE_DECAL = "/models/ferrari-enzo/caballo-lateral.png";
 export const ENZO_SIDE_DECAL_ALPHA = "/models/ferrari-enzo/caballo-lateral-alpha.png";
@@ -109,6 +110,8 @@ export const GARAGE_FOCUS_DURATION = 0.4;
 
 export const CONFIG_BAY = { x: 3.2, z: 1.4 };
 export const CONFIG_CAR_SCALE = 1.9;
+/** Engine stand beside the nose of the car bay, viewed from the front so the car sits to its right. */
+export const CONFIG_ENGINE_STAND = { x: -0.4, z: 4.3, plinth: 0.55 };
 export const CONFIG_ROOM = {
   minX: -11.1,
   maxX: 11.1,

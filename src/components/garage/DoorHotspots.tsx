@@ -38,7 +38,7 @@ function DoorMarker({
   sound?: string;
   carRef: React.RefObject<Group | null>;
 }) {
-  const interior = useConfig((state) => state.cameraPreset === "interior");
+  const hidden = useConfig((state) => state.cameraPreset === "interior" || state.cameraPreset === "engine");
   const sideLabel = door.side === "right" ? "right-hand" : "left-hand";
   const label = door.label ?? `Open ${sideLabel} door and sit inside`;
 
@@ -47,7 +47,7 @@ function DoorMarker({
     if (sound) preloadSound(sound);
   }, [sound]);
 
-  if (interior) return null;
+  if (hidden) return null;
 
   return (
     <CarHotspot carRef={carRef} point={doorHotspotPoint(door)} detect={door.detect}>

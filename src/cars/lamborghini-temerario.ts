@@ -39,6 +39,7 @@ export const lamborghiniTemerario = defineCar({
       { label: "Powertrain", value: "V8 + 3 motors" },
     ],
   },
+  engineBase: { power: 920, powerUnit: "CV", torque: 730, torqueUnit: "Nm", sprint: { label: "0–100", seconds: 2.7 } },
   model: LAMBORGHINI_TEMERARIO_MODEL,
   targetLength: 4.71,
   yaw: Math.PI / 2,

@@ -3,6 +3,8 @@ import { ENGINE_SFX_STORAGE_KEY, LOW_ENGINE_NOISE, LOW_ENGINE_VOLUME } from "./c
 
 let bed: HTMLAudioElement | null = null;
 let wanted = false;
+let loudness = 1;
+let pitch = 1;
 let enabled = readEnabled();
 const listeners = new Set<(value: boolean) => void>();
 
@@ -36,7 +38,9 @@ function apply() {
   const audio = ensureBed();
   tapAudio(audio);
   void resumeAudio();
-  audio.volume = LOW_ENGINE_VOLUME;
+  audio.volume = Math.min(1, LOW_ENGINE_VOLUME * loudness);
+  audio.preservesPitch = false;
+  audio.playbackRate = pitch;
   if (!audio.paused && !audio.ended) return;
   void audio.play().catch(() => {});
 }
@@ -71,4 +75,13 @@ export function startEngineLoop() {
 export function stopEngineLoop() {
   wanted = false;
   apply();
+}
+
+/** Engine bay controls: `loudness` scales the bed volume, `pitch` its playback rate (1 = idle). */
+export function setEngineLoopLevel(nextLoudness: number, nextPitch: number) {
+  loudness = nextLoudness;
+  pitch = nextPitch;
+  if (!bed) return;
+  bed.volume = Math.min(1, LOW_ENGINE_VOLUME * loudness);
+  bed.playbackRate = pitch;
 }

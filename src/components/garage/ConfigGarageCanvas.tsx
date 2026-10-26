@@ -11,6 +11,7 @@ import {
   CONFIG_CAMERA_MAX_DISTANCE,
   CONFIG_CAMERA_MIN_DISTANCE,
   CONFIG_CAR_SCALE as CAR_SCALE,
+  CONFIG_ENGINE_STAND as STAND,
   CONFIG_ROOM as ROOM,
 } from "../../lib/constants";
 import { rightHandDoorApproach } from "../../lib/camera-paths";
@@ -21,6 +22,7 @@ import { useConfig } from "../../lib/store";
 import { CarModel } from "../car/CarModel";
 import { ConfigGarage } from "./ConfigGarage";
 import { DoorHotspots } from "./DoorHotspots";
+import { EngineStand } from "./EngineStand";
 import { IgnitionHotspot } from "./IgnitionHotspot";
 
 const ROOM_BOUNDS = new Box3(
@@ -72,7 +74,14 @@ const views: Record<Exclude<CameraPreset, "interior">, { position: [number, numb
   side: bayView([3.55, 1.52, 0.18], [0, 0.55, 0]),
   rear: bayView([0, 1.95, -5.8], [0, 0.5, 0]),
   detail: bayView([2.1, 1.4, 3.0], [0.3, 0.55, 0.15]),
+  engine: {
+    position: [STAND.x - 0.6, 2.8, STAND.z + 3.3],
+    target: [STAND.x, STAND.plinth + 0.7, STAND.z],
+  },
 };
+
+const ENGINE_MIN_DISTANCE = 1.8;
+const ENGINE_MAX_DISTANCE = 6.5;
 
 function applyLimits(
   cameraControls: CameraControlsImpl,
@@ -82,12 +91,13 @@ function applyLimits(
   width = 1280,
   height = 800,
   overlay: ReturnType<typeof useOverlayFrame> = "closed",
+  engine = false,
 ) {
   const action = CameraControlsImpl.ACTION;
   cameraControls.truckSpeed = 0;
   cameraControls.infinityDolly = false;
-  cameraControls.minDistance = interior ? CABIN_LOOK_AHEAD : CONFIG_CAMERA_MIN_DISTANCE;
-  cameraControls.maxDistance = interior ? CABIN_LOOK_AHEAD : CONFIG_CAMERA_MAX_DISTANCE;
+  cameraControls.minDistance = interior ? CABIN_LOOK_AHEAD : engine ? ENGINE_MIN_DISTANCE : CONFIG_CAMERA_MIN_DISTANCE;
+  cameraControls.maxDistance = interior ? CABIN_LOOK_AHEAD : engine ? ENGINE_MAX_DISTANCE : CONFIG_CAMERA_MAX_DISTANCE;
   cameraControls.minPolarAngle = interior ? 0.28 : 0.78;
   cameraControls.maxPolarAngle = interior ? Math.PI - 0.32 : Math.PI / 2 - 0.1;
   cameraControls.minAzimuthAngle = -Infinity;
@@ -183,7 +193,7 @@ function CameraRig({
         return;
       }
 
-      applyLimits(cameraControls, camera, interior, cabin, size.width, size.height, overlay);
+      applyLimits(cameraControls, camera, interior, cabin, size.width, size.height, overlay, preset === "engine");
       cameraControls.colliderMeshes = interior ? [] : colliders;
       cameraControls.setLookAt(...next.position, ...next.target, settled.current);
       settled.current = true;
@@ -275,6 +285,11 @@ function Scene({ car, onCarReady }: { car: CarDefinition; onCarReady?: (car: Car
   const heldRef = useRef<Group>(null);
   const colliders = useMemo(() => createRoomColliders(), []);
   const [held, setHeld] = useState(car);
+  const engineView = useConfig((state) => state.cameraPreset === "engine");
+  const [engineShown, setEngineShown] = useState(false);
+  useEffect(() => {
+    if (engineView) setEngineShown(true);
+  }, [engineView]);
   const readyRef = useRef(onCarReady);
   readyRef.current = onCarReady;
   const settle = useCallback((next: CarDefinition) => {
@@ -293,6 +308,13 @@ function Scene({ car, onCarReady }: { car: CarDefinition; onCarReady?: (car: Car
         <Environment preset="warehouse" background={false} blur={0.65} resolution={128} />
         <ConfigGarage />
       </Suspense>
+      {engineShown ? (
+        <group visible={engineView}>
+          <Suspense fallback={null}>
+            <EngineStand />
+          </Suspense>
+        </group>
+      ) : null}
       <Suspense fallback={held.slug === car.slug ? null : <GroundedCar car={held} carRef={heldRef} />}>
         <SettledCar car={car} carRef={carRef} onReady={settle} />
       </Suspense>

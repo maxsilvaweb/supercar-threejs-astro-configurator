@@ -39,6 +39,7 @@ export const porscheGt4 = defineCar({
       { label: "Gearbox", value: "6-speed manual" },
     ],
   },
+  engineBase: { power: 385, powerUnit: "PS", torque: 420, torqueUnit: "Nm", sprint: { label: "0–100", seconds: 4.4 } },
   model: PORSCHE_GT4_MODEL,
   targetLength: 4.46,
   defaultFinish: "gloss",

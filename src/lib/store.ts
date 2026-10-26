@@ -1,8 +1,17 @@
 import { create } from "zustand";
 import { getCar } from "../cars";
 import { GARAGE_STORAGE_KEY, IMPACT_DRILL, IMPACT_DRILL_VOLUME, QUICK_WOOSH, QUICK_WOOSH_VOLUME, SPRAY_PAINT, SPRAY_PAINT_VOLUME } from "./constants";
+import { exhaustVolume } from "./engine";
+import { setEngineLoopLevel, startEngineLoop, stopEngineLoop } from "./engine-loop";
 import { playOneShotSound } from "./play-one-shot-sound";
-import { createDefaultBuild, type CameraPreset, type CarBuild, type CarDefinition } from "./schema";
+import {
+  createDefaultBuild,
+  type CameraPreset,
+  type CarBuild,
+  type CarDefinition,
+  type EngineTune,
+  type EngineZoneId,
+} from "./schema";
 
 export interface SavedBuild {
   id: string;
@@ -21,6 +30,9 @@ interface ConfigStore extends CarBuild {
   applying: boolean;
   applyStatus: string;
   applyToken: number;
+  engineRunning: boolean;
+  engineRevving: boolean;
+  engineExploded: boolean;
   saved: SavedBuild[];
   loadCar: (slug: string) => void;
   loadBuild: (id: string) => boolean;
@@ -35,6 +47,12 @@ interface ConfigStore extends CarBuild {
   setRideHeight: (value: number) => void;
   setAutoRotate: (value: boolean) => void;
   setCameraPreset: (preset: CameraPreset) => void;
+  setEnginePaint: (zone: EngineZoneId, color: string) => void;
+  setEngineFinish: (finish: CarBuild["finish"]) => void;
+  setEngineTune: (tune: Partial<EngineTune>) => void;
+  setEngineRunning: (running: boolean) => void;
+  setEngineRevving: (revving: boolean) => void;
+  setEngineExploded: (exploded: boolean) => void;
   enterCabin: (side: CabinSide) => void;
   saveBuild: (thumbnail?: string) => void;
   deleteBuild: (id: string) => void;
@@ -47,6 +65,18 @@ function readSaved(): SavedBuild[] {
   } catch {
     return [];
   }
+}
+
+/** Pushes running, revving and exhaust into the shared engine loop. */
+function syncEngineSound(state: Pick<ConfigStore, "engineRunning" | "engineRevving" | "engine">) {
+  if (!state.engineRunning) {
+    stopEngineLoop();
+    setEngineLoopLevel(1, 1);
+    return;
+  }
+  const loudness = exhaustVolume[state.engine.tune.exhaust];
+  setEngineLoopLevel(state.engineRevving ? loudness * 1.35 : loudness, state.engineRevving ? 1.45 : 1);
+  startEngineLoop();
 }
 
 function writeSaved(saved: SavedBuild[]) {
@@ -73,6 +103,9 @@ export const useConfig = create<ConfigStore>((set, get) => ({
   applying: false,
   applyStatus: "",
   applyToken: 0,
+  engineRunning: false,
+  engineRevving: false,
+  engineExploded: false,
   saved: readSaved(),
   beginApply: (applyStatus) =>
     set((state) => ({ applying: true, applyStatus, applyToken: state.applyToken + 1 })),
@@ -84,6 +117,7 @@ export const useConfig = create<ConfigStore>((set, get) => ({
   loadCar: (slug) => {
     const car = getCar(slug);
     if (!car || car.comingSoon) return;
+    if (get().engineRunning) get().setEngineRunning(false);
     set({
       car,
       ...createDefaultBuild(car),
@@ -91,6 +125,9 @@ export const useConfig = create<ConfigStore>((set, get) => ({
       cabinSide: null,
       applying: false,
       applyStatus: "",
+      engineRunning: false,
+      engineRevving: false,
+      engineExploded: false,
     });
   },
   loadBuild: (id) => {
@@ -98,6 +135,7 @@ export const useConfig = create<ConfigStore>((set, get) => ({
     if (!entry) return false;
     const car = getCar(entry.build.slug);
     if (!car || car.comingSoon) return false;
+    if (get().engineRunning) get().setEngineRunning(false);
     set({
       car,
       ...createDefaultBuild(car),
@@ -107,6 +145,9 @@ export const useConfig = create<ConfigStore>((set, get) => ({
       cabinSide: null,
       applying: false,
       applyStatus: "",
+      engineRunning: false,
+      engineRevving: false,
+      engineExploded: false,
     });
     return true;
   },
@@ -152,13 +193,43 @@ export const useConfig = create<ConfigStore>((set, get) => ({
   setRideHeight: (rideHeight) => set({ rideHeight }),
   setAutoRotate: (autoRotate) => set({ autoRotate }),
   setCameraPreset: (cameraPreset) => {
-    if (get().cameraPreset === cameraPreset) return;
+    const state = get();
+    if (state.cameraPreset === cameraPreset) return;
+    if (state.cameraPreset === "engine" && state.engineRunning) state.setEngineRunning(false);
     set({
       cameraPreset,
       cabinSide: cameraPreset === "interior" ? get().cabinSide ?? "left" : null,
       autoRotate: cameraPreset === "interior" ? false : get().autoRotate,
     });
     void playOneShotSound(QUICK_WOOSH, QUICK_WOOSH_VOLUME);
+  },
+  setEnginePaint: (zone, color) => {
+    if (get().engine.paints[zone].toLowerCase() === color.toLowerCase()) return;
+    set((state) => ({ engine: { ...state.engine, paints: { ...state.engine.paints, [zone]: color } } }));
+    void playOneShotSound(SPRAY_PAINT, SPRAY_PAINT_VOLUME);
+  },
+  setEngineFinish: (finish) => {
+    if (get().engine.finish === finish) return;
+    set((state) => ({ engine: { ...state.engine, finish } }));
+    void playOneShotSound(SPRAY_PAINT, SPRAY_PAINT_VOLUME);
+  },
+  setEngineTune: (tune) => {
+    set((state) => ({ engine: { ...state.engine, tune: { ...state.engine.tune, ...tune } } }));
+    syncEngineSound(get());
+  },
+  setEngineRunning: (engineRunning) => {
+    set({ engineRunning, engineRevving: false });
+    syncEngineSound(get());
+  },
+  setEngineRevving: (engineRevving) => {
+    if (!get().engineRunning || get().engineRevving === engineRevving) return;
+    set({ engineRevving });
+    syncEngineSound(get());
+  },
+  setEngineExploded: (engineExploded) => {
+    if (get().engineExploded === engineExploded) return;
+    set({ engineExploded });
+    void playOneShotSound(IMPACT_DRILL, IMPACT_DRILL_VOLUME);
   },
   enterCabin: (side) => {
     set({ cameraPreset: "interior", cabinSide: side, autoRotate: false });
@@ -182,6 +253,7 @@ export const useConfig = create<ConfigStore>((set, get) => ({
         environment: state.environment,
         rideHeight: state.rideHeight,
         autoRotate: state.autoRotate,
+        engine: state.engine,
       },
     };
     const saved = [entry, ...state.saved].slice(0, 18);
@@ -206,5 +278,6 @@ export function snapshotBuild(state: CarBuild): CarBuild {
     environment: state.environment,
     rideHeight: state.rideHeight,
     autoRotate: state.autoRotate,
+    engine: state.engine,
   };
 }

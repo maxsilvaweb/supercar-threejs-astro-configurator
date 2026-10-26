@@ -38,6 +38,7 @@ export const toyotaSupraMk5 = defineCar({
       { label: "Layout", value: "Front-engine RWD" },
     ],
   },
+  engineBase: { power: 382, powerUnit: "hp", torque: 368, torqueUnit: "lb-ft", sprint: { label: "0–60", seconds: 3.9 } },
   model: TOYOTA_SUPRA_MK5_MODEL,
   targetLength: 4.05,
   groundLift: 0.038,

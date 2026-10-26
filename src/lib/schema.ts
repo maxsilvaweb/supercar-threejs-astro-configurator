@@ -1,3 +1,5 @@
+import { engineFactoryPaints } from "./engine";
+
 export type Brand = "ferrari" | "porsche" | "lamborghini" | "chevrolet" | "aston-martin" | "toyota" | "bugatti" | "mclaren" | "audi" | "honda";
 
 export type FinishId = "gloss" | "satin" | "matte" | "metallic" | "carbon";
@@ -6,7 +8,7 @@ export type EnvironmentId = "studio" | "showroom" | "night" | "carbon";
 
 export type WheelId = "stock" | "aftermarket";
 
-export type CameraPreset = "front" | "threeQuarter" | "side" | "rear" | "detail" | "interior";
+export type CameraPreset = "front" | "threeQuarter" | "side" | "rear" | "detail" | "interior" | "engine";
 
 export interface CarDoor {
   id: string;
@@ -86,6 +88,15 @@ export interface CarHistory {
   facts?: CarSpecFact[];
 }
 
+/** Published factory figures the engine tuner starts from, in the car's own units. Do not invent figures. */
+export interface EngineBase {
+  power: number;
+  powerUnit: "PS" | "hp" | "CV";
+  torque: number;
+  torqueUnit: "Nm" | "lb-ft";
+  sprint?: { label: "0–100" | "0–60"; seconds: number };
+}
+
 export interface CarDefinition {
   slug: string;
   brand: Brand;
@@ -116,12 +127,31 @@ export interface CarDefinition {
   doorSound?: string;
   cabin?: CarCabin;
   ignition?: CarIgnitionHotspot;
+  engineBase?: EngineBase;
 }
 
 export interface WheelDefinition {
   id: WheelId;
   label: string;
   model?: string;
+}
+
+export type EngineZoneId = "covers" | "coils" | "sump";
+
+export type ExhaustId = "stock" | "sport" | "straight";
+
+export interface EngineTune {
+  /** Extra boost, 0–100 % of the tuner's range. */
+  boost: number;
+  /** Rev limit change in rpm. */
+  revLimit: number;
+  exhaust: ExhaustId;
+}
+
+export interface EngineBuild {
+  paints: Record<EngineZoneId, string>;
+  finish: FinishId;
+  tune: EngineTune;
 }
 
 export interface CarBuild {
@@ -134,6 +164,7 @@ export interface CarBuild {
   environment: EnvironmentId;
   rideHeight: number;
   autoRotate: boolean;
+  engine: EngineBuild;
 }
 
 export function defineCar(car: CarDefinition): CarDefinition {
@@ -155,5 +186,10 @@ export function createDefaultBuild(car: CarDefinition): CarBuild {
     environment: "studio",
     rideHeight: 0,
     autoRotate: false,
+    engine: {
+      paints: { ...engineFactoryPaints },
+      finish: "satin",
+      tune: { boost: 0, revLimit: 0, exhaust: "stock" },
+    },
   };
 }

@@ -1,4 +1,4 @@
-import { ArrowLeft, Ban, ChevronsLeft, ChevronsRight, PanelLeft, RotateCw, Save } from "lucide-react";
+import { ArrowLeft, Ban, ChevronsLeft, ChevronsRight, Gauge, PanelLeft, Power, RotateCw, Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { listConfigurableCars } from "../../cars";
 import { paintSwatches, rimSwatches } from "../../lib/colors";
@@ -7,8 +7,22 @@ import { carPreviewUrl, IMPACT_DRILL, SPRAY_PAINT } from "../../lib/constants";
 import { prefetchCar } from "../../lib/models";
 import { isSideOverlay, watchOverlayOpen } from "../../lib/overlay-frame";
 import { studioPanelClass, studioToggleClass } from "../../lib/studio-overlay";
+import {
+  BOOST_RANGE,
+  engineFactoryPaints,
+  engineZones,
+  exhaustOptions,
+  formatGain,
+  formatPower,
+  formatSprint,
+  formatTorque,
+  REV_LIMIT_RANGE,
+  tuneFactors,
+  tunedFigures,
+  tunedSpecFacts,
+} from "../../lib/engine";
 import { finishOrder, finishes } from "../../lib/finishes";
-import type { CameraPreset, CarDefinition } from "../../lib/schema";
+import type { CameraPreset, CarDefinition, CarSpecFact, EngineZoneId, ExhaustId } from "../../lib/schema";
 import { useConfig } from "../../lib/store";
 import { BrandMark } from "./BrandMark";
 import { SpecSheet, SpecSummary } from "./CarSpec";
@@ -19,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
@@ -36,13 +51,16 @@ const sections = [
   { id: "finish", label: "Finish", description: "Gloss, satin, matte, metal" },
   { id: "wheels", label: "Wheels", description: "Factory or aftermarket" },
   { id: "options", label: "Options", description: "Aero packages" },
+  { id: "engine", label: "Engine", description: "Colour, tune, inspect" },
   { id: "spec", label: "Spec", description: "Engine and performance" },
   { id: "environment", label: "Studio", description: "Camera presets" },
 ] as const;
 
 type SectionId = (typeof sections)[number]["id"];
 
-const designSections = new Set<SectionId>(["paint", "finish", "wheels", "options"]);
+const designSections = new Set<SectionId>(["paint", "finish", "wheels", "options", "engine"]);
+
+const engineFinishes = finishOrder.filter((id) => id !== "carbon");
 
 function ApplyStatus() {
   const applying = useConfig((state) => state.applying);
@@ -160,6 +178,196 @@ function PaintPanel({ car }: { car: CarDefinition }) {
   );
 }
 
+function TuneSlider({
+  label,
+  value,
+  display,
+  range,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  display: string;
+  range: { min: number; max: number; step: number };
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between text-sm">
+        <Label>{label}</Label>
+        <span className="text-white tabular-nums">{display}</span>
+      </div>
+      <Slider
+        value={[value]}
+        min={range.min}
+        max={range.max}
+        step={range.step}
+        aria-label={label}
+        onValueChange={([next]) => onChange(next)}
+      />
+    </div>
+  );
+}
+
+function engineFacts(car: CarDefinition, tune: Parameters<typeof tuneFactors>[0]): CarSpecFact[] {
+  const base = car.engineBase;
+  const factors = tuneFactors(tune);
+  if (!base) {
+    return [
+      { label: "Power", value: formatGain(factors.power) },
+      { label: "Torque", value: formatGain(factors.torque) },
+    ];
+  }
+  const tuned = tunedFigures(base, tune);
+  const facts = [
+    { label: "Power", value: `${formatPower(base, base.power)} → ${formatPower(base, tuned.power)}` },
+    { label: "Torque", value: `${formatTorque(base, base.torque)} → ${formatTorque(base, tuned.torque)}` },
+  ];
+  if (base.sprint && tuned.sprint) {
+    facts.push({ label: base.sprint.label, value: `${formatSprint(base.sprint.seconds)} → ${formatSprint(tuned.sprint)}` });
+  }
+  return facts;
+}
+
+function EnginePanel({ car }: { car: CarDefinition }) {
+  const engine = useConfig((state) => state.engine);
+  const running = useConfig((state) => state.engineRunning);
+  const revving = useConfig((state) => state.engineRevving);
+  const exploded = useConfig((state) => state.engineExploded);
+  const setEnginePaint = useConfig((state) => state.setEnginePaint);
+  const setEngineFinish = useConfig((state) => state.setEngineFinish);
+  const setEngineTune = useConfig((state) => state.setEngineTune);
+  const setEngineRunning = useConfig((state) => state.setEngineRunning);
+  const setEngineRevving = useConfig((state) => state.setEngineRevving);
+  const setEngineExploded = useConfig((state) => state.setEngineExploded);
+  const [zone, setZone] = useState<EngineZoneId>("covers");
+  const { tune } = engine;
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-5">
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="sm"
+          spacing={3}
+          value={zone}
+          onValueChange={(value) => value && setZone(value as EngineZoneId)}
+          className="flex-wrap justify-start gap-2"
+        >
+          {engineZones.map((entry) => (
+            <ToggleGroupItem key={entry.id} value={entry.id}>
+              {entry.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <SwatchRow
+          value={engine.paints[zone]}
+          onChange={(hex) => setEnginePaint(zone, hex)}
+          swatches={[{ id: "factory", label: "Factory", hex: engineFactoryPaints[zone] }, ...paintSwatches]}
+        />
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="sm"
+          spacing={3}
+          value={engine.finish}
+          aria-label="Engine finish"
+          onValueChange={(value) => value && setEngineFinish(value as typeof engine.finish)}
+          className="flex-wrap justify-start gap-2"
+        >
+          {engineFinishes.map((id) => (
+            <ToggleGroupItem key={id} value={id}>
+              {finishes[id].label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-5">
+        <TuneSlider
+          label="Boost"
+          value={tune.boost}
+          display={`+${tune.boost}%`}
+          range={BOOST_RANGE}
+          onChange={(boost) => setEngineTune({ boost })}
+        />
+        <TuneSlider
+          label="Rev limit"
+          value={tune.revLimit}
+          display={`${tune.revLimit > 0 ? "+" : ""}${tune.revLimit.toLocaleString("en-GB")} rpm`}
+          range={REV_LIMIT_RANGE}
+          onChange={(revLimit) => setEngineTune({ revLimit })}
+        />
+        <div className="space-y-2.5">
+          <Label>Exhaust</Label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            spacing={3}
+            value={tune.exhaust}
+            aria-label="Exhaust"
+            onValueChange={(value) => value && setEngineTune({ exhaust: value as ExhaustId })}
+            className="flex-wrap justify-start gap-2"
+          >
+            {exhaustOptions.map((option) => (
+              <ToggleGroupItem key={option.id} value={option.id}>
+                {option.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+        <SpecSheet facts={engineFacts(car, tune)} />
+        <p className="text-muted-foreground text-xs">Estimated figures for illustration, not a dyno result.</p>
+      </div>
+
+      <Separator />
+
+      <div className="space-y-5">
+        <div className="flex items-center justify-between gap-6 py-0.5">
+          <Label htmlFor="engine-exploded">Exploded view</Label>
+          <Switch id="engine-exploded" checked={exploded} onCheckedChange={setEngineExploded} />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="btn-chrome"
+            aria-pressed={running}
+            data-active={running}
+            onClick={() => setEngineRunning(!running)}
+          >
+            <Power data-icon="inline-start" />
+            {running ? "Stop engine" : "Start engine"}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="btn-chrome"
+            aria-pressed={revving}
+            data-active={revving}
+            disabled={!running}
+            onPointerDown={() => setEngineRevving(true)}
+            onPointerUp={() => setEngineRevving(false)}
+            onPointerLeave={() => setEngineRevving(false)}
+            onKeyDown={(event) => {
+              if (event.key === " " || event.key === "Enter") setEngineRevving(true);
+            }}
+            onKeyUp={() => setEngineRevving(false)}
+          >
+            <Gauge data-icon="inline-start" />
+            Hold to rev
+          </Button>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
 function SectionBody({ car, section }: { car: CarDefinition; section: SectionId }) {
   const state = useConfig();
   const locked = state.cameraPreset === "interior" && designSections.has(section);
@@ -222,6 +430,8 @@ function SectionBody({ car, section }: { car: CarDefinition; section: SectionId 
             ))}
           </div>
         )
+      ) : section === "engine" ? (
+        <EnginePanel car={car} />
       ) : section === "spec" ? (
         car.spec ? (
           <SpecSheet facts={car.spec.details} />
@@ -454,6 +664,12 @@ export function Tuner({
     if (interior && designSections.has(section)) setSection("environment");
   }, [interior, section]);
 
+  useEffect(() => {
+    const { cameraPreset, setCameraPreset } = useConfig.getState();
+    if (section === "engine") setCameraPreset("engine");
+    else if (cameraPreset === "engine") setCameraPreset("threeQuarter");
+  }, [section]);
+
   return (
     <>
       <CabinExitButton car={car} visible={revealed && interior} hint={revealed} />
@@ -515,7 +731,7 @@ export function Tuner({
           {car.name}
           {car.tagline ? <span className="text-muted-foreground"> {car.tagline}</span> : null}
         </h1>
-        {car.spec ? <SpecSummary facts={car.spec.summary} /> : null}
+        {car.spec ? <SpecSummary facts={tunedSpecFacts(car.spec.summary, car.engineBase, state.engine.tune)} /> : null}
 
         <CarRoster car={car} onSelectCar={onSelectCar} />
         {pending ? (
