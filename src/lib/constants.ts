@@ -1,5 +1,7 @@
 /** Shared paths, storage keys, and scene layout. */
 
+import { modelUrl } from "./model-url";
+
 export const STUDIO_GARAGE_ENTRY = "/sounds/studio-garage-entry.mp3";
 export const STUDIO_GARAGE_ENTRY_VOLUME = 0.85;
 
@@ -73,24 +75,24 @@ export const STUDIO_INFO_STORAGE_KEY = "car-modeler-studio-info";
 export const STUDIO_ACCENT_STORAGE_KEY = "car-modeler-studio-accent";
 export const WAREHOUSE_LIGHTS_STORAGE_KEY = "car-modeler-warehouse-lights";
 
-export const FERRARI_SF25_MODEL = "/models/ferrari-sf25/ferrari-sf25.glb?v=3";
-export const CHEVROLET_ZR1_MODEL = "/models/chevrolet-zr1/chevrolet-zr1.glb?v=3";
-export const ASTON_MARTIN_VALHALLA_MODEL = "/models/aston-martin-valhalla/aston-martin-valhalla.glb?v=2";
-export const TOYOTA_SUPRA_MK5_MODEL = "/models/toyota-supra-mk5/toyota-supra-mk5.glb?v=3";
-export const BUGATTI_CHIRON_MODEL = "/models/bugatti-chiron/bugatti-chiron.glb?v=2";
-export const FERRARI_ENZO_MODEL = "/models/ferrari-enzo/ferrari-enzo.glb?v=4";
-export const PORSCHE_GT4_MODEL = "/models/porsche-gt4/porsche-gt4.glb?v=3";
-export const LAMBORGHINI_REVUELTO_MODEL = "/models/lamborghini-revuelto/lamborghini-revuelto.glb?v=3";
-export const LAMBORGHINI_TEMERARIO_MODEL = "/models/lamborghini-temerario/lamborghini-temerario.glb?v=2";
-export const MCLAREN_765LT_MODEL = "/models/mclaren-765lt/mclaren-765lt.glb?v=3";
-export const AUDI_R8_LMS_MODEL = "/models/audi-r8-lms/audi-r8-lms.glb?v=2";
-export const RED_BULL_RB18_MODEL = "/models/red-bull-rb18/red-bull-rb18.glb?v=2";
+export const FERRARI_SF25_MODEL = modelUrl("ferrari-sf25/ferrari-sf25.glb");
+export const CHEVROLET_ZR1_MODEL = modelUrl("chevrolet-zr1/chevrolet-zr1.glb");
+export const ASTON_MARTIN_VALHALLA_MODEL = modelUrl("aston-martin-valhalla/aston-martin-valhalla.glb");
+export const TOYOTA_SUPRA_MK5_MODEL = modelUrl("toyota-supra-mk5/toyota-supra-mk5.glb");
+export const BUGATTI_CHIRON_MODEL = modelUrl("bugatti-chiron/bugatti-chiron.glb");
+export const FERRARI_ENZO_MODEL = modelUrl("ferrari-enzo/ferrari-enzo.glb");
+export const PORSCHE_GT4_MODEL = modelUrl("porsche-gt4/porsche-gt4.glb");
+export const LAMBORGHINI_REVUELTO_MODEL = modelUrl("lamborghini-revuelto/lamborghini-revuelto.glb");
+export const LAMBORGHINI_TEMERARIO_MODEL = modelUrl("lamborghini-temerario/lamborghini-temerario.glb");
+export const MCLAREN_765LT_MODEL = modelUrl("mclaren-765lt/mclaren-765lt.glb");
+export const AUDI_R8_LMS_MODEL = modelUrl("audi-r8-lms/audi-r8-lms.glb");
+export const RED_BULL_RB18_MODEL = modelUrl("red-bull-rb18/red-bull-rb18.glb");
 export const LAMBORGHINI_REVUELTO_CLUSTER = "/ui/dials/lamborghini-revuelto.jpg";
 export const PORSCHE_GT4_CLUSTER = "/ui/dials/porsche-gt4.jpg?v=3";
 export const PORSCHE_GT4_BADGE = "/ui/brands/porsche-crest.png";
-export const RIM_MODEL = "/models/rim/rim.glb?v=1";
-export const STUDIO_GARAGE_MODEL = "/models/studio-garage/studio-garage.glb?v=2";
-export const CONFIG_GARAGE_MODEL = "/models/config-garage/config-garage.glb?v=2";
+export const RIM_MODEL = modelUrl("rim/rim.glb");
+export const STUDIO_GARAGE_MODEL = modelUrl("studio-garage/studio-garage.glb");
+export const CONFIG_GARAGE_MODEL = modelUrl("config-garage/config-garage.glb");
 
 export const ENZO_SIDE_DECAL = "/models/ferrari-enzo/caballo-lateral.png";
 export const ENZO_SIDE_DECAL_ALPHA = "/models/ferrari-enzo/caballo-lateral-alpha.png";

@@ -12,3 +12,10 @@ dist
 *.obj
 *.mtl
 *.dxf
+
+# GLBs are served from Vercel Blob (bun run models:upload); bun run models:sync restores them
+public/models/**/*.glb
+
+# Vercel link and local secrets
+.vercel
+.env*

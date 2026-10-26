@@ -74,7 +74,7 @@ Zustand sits between the panels and the scene, so the configurator UI and the 3D
 
 ## Cars are data
 
-Every car is a single typed definition in `src/cars/`. The schema maps the model's materials to paint groups, locks the materials that should not change, and declares doors, cabin seats, aero parts and specs. Adding a car is a new file plus a GLB in `public/models/`, with no component changes:
+Every car is a single typed definition in `src/cars/`. The schema maps the model's materials to paint groups, locks the materials that should not change, and declares doors, cabin seats, aero parts and specs. Adding a car is a new file plus a GLB in `public/models/` uploaded to [Vercel Blob](#models-on-vercel-blob), with no component changes:
 
 ```ts
 export const ferrariEnzo = defineCar({
@@ -97,6 +97,7 @@ export const ferrariEnzo = defineCar({
 ## Performance and SEO
 
 - Key models, images and sounds are preloaded in the page head, and each car's model is prefetched from the picker before you click
+- GLBs are served from Vercel Blob under content-hashed names with a one-year cache, so deploys stay small and a model is never downloaded twice
 - One static page per car via `getStaticPaths`, each with its own title, description and preview image
 - JSON-LD structured data, a generated sitemap and `robots.txt`
 - Vercel Analytics and Speed Insights
@@ -112,10 +113,11 @@ src/
     car/         car model, decals
     overlay/     panels: tuner, spec, saved builds, sound, preloader
     ui/          shadcn/ui primitives
-  lib/           store, schema, materials, camera paths, audio
+  lib/           store, schema, materials, camera paths, audio, model manifest
   pages/         index.astro, configure/[slug].astro, robots.txt
+scripts/         model upload, sync and build check
 public/
-  models/        GLB models and textures
+  models/        GLB models (gitignored, served from Blob) and textures
   sounds/        ambience and effects
   ui/            brand marks, previews
 ```
@@ -124,6 +126,7 @@ public/
 
 ```bash
 bun install
+bun run models:sync   # first clone only: download the GLBs into public/models
 bun dev
 ```
 
@@ -133,3 +136,18 @@ Open `http://127.0.0.1:4321`. The studio is desktop only.
 bun run build    # static build to dist/
 bun run preview  # serve the build locally
 ```
+
+## Models on Vercel Blob
+
+GLB files are not committed or deployed. They live in Vercel Blob, and `src/lib/model-manifest.json` maps each path under `public/models/` to its Blob URL. Dev serves the local files; production builds use the Blob URLs.
+
+```bash
+bun run models:upload          # upload new or changed GLBs, then commit the manifest
+bun run models:upload --prune  # also delete blobs the manifest no longer uses
+bun run models:sync            # download missing GLBs from Blob
+bun run models:check           # verify every model resolves (runs before each build)
+```
+
+Each upload is named by a hash of its contents (`models/rim/rim.ca31db284a2f.glb`), so a changed model gets a new URL and needs no manual cache-busting. Uploading needs `BLOB_READ_WRITE_TOKEN` in `.env.local`, copied from the Blob store page in the Vercel dashboard.
+
+To add a model, put the GLB in `public/models/<slug>/`, reference it with `modelUrl("<slug>/<slug>.glb")` in `src/lib/constants.ts`, then run `bun run models:upload`. Car GLBs must keep their node, mesh and material names, so don't run the default `gltf-transform optimize` on them.
