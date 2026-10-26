@@ -39,6 +39,7 @@ export const audiR8Lms = defineCar({
       { label: "Weight", value: "1,235 kg dry" },
     ],
   },
+  engineModel: "v8",
   engineBase: { power: 585, powerUnit: "hp", torque: 550, torqueUnit: "Nm" },
   model: AUDI_R8_LMS_MODEL,
   targetLength: 4.6,

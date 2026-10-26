@@ -38,6 +38,7 @@ export const astonMartinValhalla = defineCar({
       { label: "Origin", value: "AM-RB 003" },
     ],
   },
+  engineModel: 'v12',
   engineBase: { power: 1079, powerUnit: 'PS', torque: 1100, torqueUnit: 'Nm' },
   model: ASTON_MARTIN_VALHALLA_MODEL,
   targetLength: 4.73,

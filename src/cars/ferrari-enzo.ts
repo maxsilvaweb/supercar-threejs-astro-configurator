@@ -39,6 +39,7 @@ export const ferrariEnzo = defineCar({
       { label: "Design", value: "Pininfarina" },
     ],
   },
+  engineModel: "v12",
   engineBase: { power: 660, powerUnit: "PS", torque: 657, torqueUnit: "Nm", sprint: { label: "0–100", seconds: 3.65 } },
   model: FERRARI_ENZO_MODEL,
   targetLength: 4.7,

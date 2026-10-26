@@ -154,6 +154,6 @@ To add a model, put the GLB in `public/models/<slug>/`, reference it with `model
 
 ## Engine bay
 
-The Engine section of the configure panel moves the camera to a V8 on a stand in the garage, where you can recolour it, tune it, explode it and rev it. Every car uses the same V8, and tuning works from each car's published figures (`engineBase` in `src/cars/*.ts`). The tuned numbers are illustrative.
+The Engine section of the configure panel moves the camera to an engine on a stand in the garage, where you can recolour it, tune it, explode it and rev it. Each car picks a V8 or a V12 with `engineModel` in `src/cars/*.ts`, and tuning works from each car's published figures (`engineBase`). The tuned numbers are illustrative.
 
-The engine is [NVIDIA SimReady `engineAssembly_v8_engine_a01`](https://huggingface.co/datasets/nvidia/simready-assets/tree/main/engineAssembly_v8_engine_a01), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It's converted from USD with `scripts/build-engine-glb.py` in Blender 4.2 or later. The header of that script lists the steps.
+Both engines are NVIDIA SimReady assets, licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): [`engineAssembly_v8_engine_a01`](https://huggingface.co/datasets/nvidia/simready-assets/tree/main/engineAssembly_v8_engine_a01) and [`engineAssembly_v12_engine_a01`](https://huggingface.co/datasets/nvidia/simready-assets/tree/main/engineAssembly_v12_engine_a01). They're converted from USD with `scripts/build-engine-glb.py` in Blender 4.2 or later. The header of that script lists the steps.

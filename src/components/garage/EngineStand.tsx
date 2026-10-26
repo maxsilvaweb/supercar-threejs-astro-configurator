@@ -1,21 +1,23 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Box3, MeshStandardMaterial, Object3D, Vector3, type Group, type Mesh } from "three";
+import { Box3, Color, MeshStandardMaterial, Object3D, Vector3, type Group, type Mesh, type Texture } from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
-import {
-  CONFIG_CAR_SCALE as ENGINE_SCALE,
-  CONFIG_ENGINE_STAND as STAND,
-  ENGINE_V8_MODEL as ENGINE_URL,
-} from "../../lib/constants";
-import { engineZones, explodeOffset } from "../../lib/engine";
+import { CONFIG_ENGINE_STAND as STAND } from "../../lib/constants";
+import { engines, explodeOffset, type EngineZone } from "../../lib/engine";
 import { finishes } from "../../lib/finishes";
-import type { EngineZoneId } from "../../lib/schema";
+import type { EngineId, EngineZoneId } from "../../lib/schema";
 import { useConfig } from "../../lib/store";
 
 const box = new Box3();
 const center = new Vector3();
 const partCenter = new Vector3();
+
+interface ZoneMaterial {
+  material: MeshStandardMaterial;
+  color: Color;
+  map: Texture | null;
+}
 
 interface EnginePart {
   mesh: Mesh;
@@ -30,6 +32,7 @@ function skipRaycast() {}
 function measureParts(root: Object3D) {
   root.updateMatrixWorld(true);
   box.setFromObject(root).getCenter(center);
+  const floor = box.min.y;
   const parts: EnginePart[] = [];
   root.traverse((object) => {
     const mesh = object as Mesh;
@@ -40,34 +43,36 @@ function measureParts(root: Object3D) {
       mesh,
       rest: mesh.position.clone(),
       offset: explodeOffset(mesh.name, partCenter, center, new Vector3()),
-      pulley: /^gear_/.test(mesh.name),
+      pulley: /^(gear|pulley)_/.test(mesh.name),
     });
   });
-  return { parts, center: center.clone(), floor: box.min.y };
+  return { parts, center: center.clone(), floor };
 }
 
-/** Gives each colour zone its own material so recolouring never touches shared ones. */
-function zoneMaterials(root: Object3D) {
-  const zones = new Map<EngineZoneId, MeshStandardMaterial[]>();
+/** Gives each colour zone its own material, remembering the original colour and map for Factory. */
+function zoneMaterials(root: Object3D, engineZones: EngineZone[]) {
+  const zones = new Map<EngineZoneId, ZoneMaterial[]>();
   root.traverse((object) => {
     const mesh = object as Mesh;
     const zone = mesh.isMesh && engineZones.find((entry) => entry.node.test(mesh.name));
     if (!zone || !(mesh.material instanceof MeshStandardMaterial)) return;
     const material = mesh.material.clone();
     mesh.material = material;
-    zones.set(zone.id, [...(zones.get(zone.id) ?? []), material]);
+    const entry = { material, color: material.color.clone(), map: material.map };
+    zones.set(zone.id, [...(zones.get(zone.id) ?? []), entry]);
   });
   return zones;
 }
 
-export function EngineStand() {
-  const { scene } = useGLTF(ENGINE_URL);
+export function EngineStand({ engineId }: { engineId: EngineId }) {
+  const definition = engines[engineId];
+  const { scene } = useGLTF(definition.model);
   const root = useMemo(() => clone(scene) as Group, [scene]);
   const shake = useRef<Group>(null);
   const progress = useRef(0);
   const [spotTarget] = useState(() => new Object3D());
   const layout = useMemo(() => measureParts(root), [root]);
-  const zones = useMemo(() => zoneMaterials(root), [root]);
+  const zones = useMemo(() => zoneMaterials(root, definition.zones), [definition, root]);
   const engine = useConfig((state) => state.engine);
   const exploded = useConfig((state) => state.engineExploded);
   const running = useConfig((state) => state.engineRunning);
@@ -75,18 +80,25 @@ export function EngineStand() {
 
   useLayoutEffect(() => {
     const finish = finishes[engine.finish];
-    for (const [zone, materials] of zones) {
-      for (const material of materials) {
-        material.color.set(engine.paints[zone]);
+    for (const [zone, entries] of zones) {
+      const paint = engine.paints[zone] ?? definition.factoryPaints[zone];
+      const factory = paint?.toLowerCase() === definition.factoryPaints[zone]?.toLowerCase();
+      for (const { material, color, map } of entries) {
+        // Painted colours replace the albedo texture; Factory puts the original back.
+        const nextMap = factory ? map : null;
+        if (material.map !== nextMap) material.needsUpdate = true;
+        material.map = nextMap;
+        if (factory || !paint) material.color.copy(color);
+        else material.color.set(paint);
         material.roughness = finish.roughness;
         material.metalness = finish.metalness;
       }
     }
-  }, [engine.finish, engine.paints, zones]);
+  }, [definition, engine.finish, engine.paints, zones]);
 
   useEffect(
     () => () => {
-      for (const materials of zones.values()) materials.forEach((material) => material.dispose());
+      for (const entries of zones.values()) entries.forEach(({ material }) => material.dispose());
     },
     [zones],
   );
@@ -120,7 +132,7 @@ export function EngineStand() {
         <cylinderGeometry args={[0.85, 0.95, STAND.plinth, 48]} />
         <meshStandardMaterial color="#1b1c1f" roughness={0.42} metalness={0.65} envMapIntensity={0.6} />
       </mesh>
-      <group position={[0, STAND.plinth, 0]} rotation={[0, -Math.PI / 2, 0]} scale={ENGINE_SCALE}>
+      <group position={[0, STAND.plinth, 0]} rotation={[0, definition.yaw, 0]} scale={definition.scale}>
         <group ref={shake}>
           <primitive object={root} position={[-layout.center.x, -layout.floor, -layout.center.z]} />
         </group>

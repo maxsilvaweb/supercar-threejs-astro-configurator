@@ -1,15 +1,53 @@
 import type { Vector3 } from "three";
-import type { CarSpecFact, EngineBase, EngineTune, EngineZoneId, ExhaustId } from "./schema";
+import { CONFIG_CAR_SCALE, ENGINE_V12_MODEL, ENGINE_V8_MODEL } from "./constants";
+import type { CarSpecFact, EngineBase, EngineId, EngineTune, EngineZoneId, ExhaustId } from "./schema";
 
-/** Node names come from scripts/build-engine-glb.py, which splits the block by material and cylinder bank. */
-export const engineZones: { id: EngineZoneId; label: string; node: RegExp }[] = [
-  { id: "covers", label: "Valve covers", node: /^block_paintedRough_orange/ },
-  { id: "coils", label: "Coil packs", node: /^block_rough_black/ },
-  { id: "sump", label: "Sump", node: /^block_paintedMetallic_gray/ },
-];
+export interface EngineZone {
+  id: EngineZoneId;
+  label: string;
+  node: RegExp;
+}
 
-/** The SimReady model's own colours, converted from its glTF base colour factors. */
-export const engineFactoryPaints: Record<EngineZoneId, string> = { covers: "#925A2E", coils: "#282828", sump: "#716E6B" };
+export interface EngineDefinition {
+  label: string;
+  model: string;
+  /** Turns the engine so its belt drive faces the front of the stand. */
+  yaw: number;
+  /** Garage units per metre; the V12 is shrunk a little so it still fits the stand and the camera. */
+  scale: number;
+  /** Node names come from scripts/build-engine-glb.py, which splits each body by material and cylinder bank. */
+  zones: EngineZone[];
+  /** Swatch colours for the model's own finish; picking one restores the original material. */
+  factoryPaints: Partial<Record<EngineZoneId, string>>;
+}
+
+export const engines: Record<EngineId, EngineDefinition> = {
+  v8: {
+    label: "V8",
+    model: ENGINE_V8_MODEL,
+    yaw: -Math.PI / 2,
+    scale: CONFIG_CAR_SCALE,
+    zones: [
+      { id: "covers", label: "Valve covers", node: /^block_paintedRough_orange/ },
+      { id: "coils", label: "Coil packs", node: /^block_rough_black/ },
+      { id: "sump", label: "Sump", node: /^block_paintedMetallic_gray/ },
+    ],
+    // Converted from the glTF base colour factors.
+    factoryPaints: { covers: "#925A2E", coils: "#282828", sump: "#716E6B" },
+  },
+  v12: {
+    label: "V12",
+    model: ENGINE_V12_MODEL,
+    yaw: Math.PI / 2,
+    scale: 1.4,
+    zones: [
+      { id: "covers", label: "Cam covers", node: /^body_\d+_painted_blue/ },
+      { id: "headers", label: "Headers", node: /^body_\d+_bronzePolished/ },
+    ],
+    // Averages of the albedo textures these materials use.
+    factoryPaints: { covers: "#3A42C9", headers: "#D5B8A2" },
+  },
+};
 
 export const exhaustOptions: { id: ExhaustId; label: string }[] = [
   { id: "stock", label: "Stock" },
@@ -82,6 +120,6 @@ export function explodeOffset(name: string, part: Vector3, center: Vector3, out:
   out.subVectors(part, center);
   const reach = out.length();
   if (reach < 0.06) return out.set(0, 0, 0);
-  const push = /^(gear|strap)_/.test(name) ? 0.38 : 0.2;
+  const push = /^(gear|pulley|strap)_/.test(name) ? 0.38 : 0.2;
   return out.normalize().multiplyScalar(push * (0.4 + reach));
 }

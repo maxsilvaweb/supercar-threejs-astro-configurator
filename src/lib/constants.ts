@@ -94,6 +94,7 @@ export const RIM_MODEL = modelUrl("rim/rim.glb");
 export const STUDIO_GARAGE_MODEL = modelUrl("studio-garage/studio-garage.glb");
 export const CONFIG_GARAGE_MODEL = modelUrl("config-garage/config-garage.glb");
 export const ENGINE_V8_MODEL = modelUrl("engine-v8/engine-v8.glb");
+export const ENGINE_V12_MODEL = modelUrl("engine-v12/engine-v12.glb");
 
 export const ENZO_SIDE_DECAL = "/models/ferrari-enzo/caballo-lateral.png";
 export const ENZO_SIDE_DECAL_ALPHA = "/models/ferrari-enzo/caballo-lateral-alpha.png";

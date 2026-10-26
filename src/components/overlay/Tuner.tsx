@@ -9,8 +9,7 @@ import { isSideOverlay, watchOverlayOpen } from "../../lib/overlay-frame";
 import { studioPanelClass, studioToggleClass } from "../../lib/studio-overlay";
 import {
   BOOST_RANGE,
-  engineFactoryPaints,
-  engineZones,
+  engines,
   exhaustOptions,
   formatGain,
   formatPower,
@@ -240,31 +239,35 @@ function EnginePanel({ car }: { car: CarDefinition }) {
   const setEngineRunning = useConfig((state) => state.setEngineRunning);
   const setEngineRevving = useConfig((state) => state.setEngineRevving);
   const setEngineExploded = useConfig((state) => state.setEngineExploded);
-  const [zone, setZone] = useState<EngineZoneId>("covers");
+  const [zoneId, setZoneId] = useState<EngineZoneId>("covers");
+  const definition = engines[car.engineModel];
+  const zone = definition.zones.find((entry) => entry.id === zoneId)?.id ?? definition.zones[0].id;
+  const factory = definition.factoryPaints[zone] ?? "#000000";
   const { tune } = engine;
 
   return (
     <div className="space-y-6">
       <div className="space-y-5">
+        <p className="text-xs font-medium tracking-[0.16em] text-white uppercase">{definition.label} engine</p>
         <ToggleGroup
           type="single"
           variant="outline"
           size="sm"
           spacing={3}
           value={zone}
-          onValueChange={(value) => value && setZone(value as EngineZoneId)}
+          onValueChange={(value) => value && setZoneId(value as EngineZoneId)}
           className="flex-wrap justify-start gap-2"
         >
-          {engineZones.map((entry) => (
+          {definition.zones.map((entry) => (
             <ToggleGroupItem key={entry.id} value={entry.id}>
               {entry.label}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
         <SwatchRow
-          value={engine.paints[zone]}
+          value={engine.paints[zone] ?? factory}
           onChange={(hex) => setEnginePaint(zone, hex)}
-          swatches={[{ id: "factory", label: "Factory", hex: engineFactoryPaints[zone] }, ...paintSwatches]}
+          swatches={[{ id: "factory", label: "Factory", hex: factory }, ...paintSwatches]}
         />
         <ToggleGroup
           type="single"

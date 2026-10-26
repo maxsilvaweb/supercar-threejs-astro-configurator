@@ -39,6 +39,7 @@ export const lamborghiniRevuelto = defineCar({
       { label: "Combined", value: "1,015 CV" },
     ],
   },
+  engineModel: "v12",
   engineBase: { power: 1015, powerUnit: "CV", torque: 725, torqueUnit: "Nm", sprint: { label: "0–100", seconds: 2.5 } },
   model: LAMBORGHINI_REVUELTO_MODEL,
   targetLength: 4.95,

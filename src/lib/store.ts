@@ -95,6 +95,7 @@ export const useConfig = create<ConfigStore>((set, get) => ({
     paintGroups: [],
     aeroParts: [],
     rideHeight: false,
+    engineModel: "v12",
     defaultPaints: {},
     defaultFinish: "gloss",
   }),
@@ -204,7 +205,7 @@ export const useConfig = create<ConfigStore>((set, get) => ({
     void playOneShotSound(QUICK_WOOSH, QUICK_WOOSH_VOLUME);
   },
   setEnginePaint: (zone, color) => {
-    if (get().engine.paints[zone].toLowerCase() === color.toLowerCase()) return;
+    if (get().engine.paints[zone]?.toLowerCase() === color.toLowerCase()) return;
     set((state) => ({ engine: { ...state.engine, paints: { ...state.engine.paints, [zone]: color } } }));
     void playOneShotSound(SPRAY_PAINT, SPRAY_PAINT_VOLUME);
   },

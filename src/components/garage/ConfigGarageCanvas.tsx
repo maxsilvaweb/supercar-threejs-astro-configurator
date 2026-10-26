@@ -311,7 +311,7 @@ function Scene({ car, onCarReady }: { car: CarDefinition; onCarReady?: (car: Car
       {engineShown ? (
         <group visible={engineView}>
           <Suspense fallback={null}>
-            <EngineStand />
+            <EngineStand key={car.engineModel} engineId={car.engineModel} />
           </Suspense>
         </group>
       ) : null}

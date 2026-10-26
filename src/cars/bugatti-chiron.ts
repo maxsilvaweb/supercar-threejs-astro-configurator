@@ -38,6 +38,7 @@ export const bugattiChiron = defineCar({
       { label: "Top speed", value: "440 km/h" },
     ],
   },
+  engineModel: "v12",
   engineBase: { power: 1600, powerUnit: "PS", torque: 1600, torqueUnit: "Nm", sprint: { label: "0–100", seconds: 2.4 } },
   model: BUGATTI_CHIRON_MODEL,
   targetLength: 4.54,

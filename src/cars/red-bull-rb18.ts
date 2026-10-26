@@ -36,6 +36,7 @@ export const redBullRb18 = defineCar({
       { label: "Power unit", value: "1.6 L V6 turbo hybrid" },
     ],
   },
+  engineModel: "v12",
   model: RED_BULL_RB18_MODEL,
   targetLength: 5.5,
   defaultFinish: "gloss",

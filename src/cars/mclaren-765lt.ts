@@ -39,6 +39,7 @@ export const mclaren765lt = defineCar({
       { label: "Power", value: "765 PS" },
     ],
   },
+  engineModel: "v12",
   engineBase: { power: 765, powerUnit: "PS", torque: 800, torqueUnit: "Nm", sprint: { label: "0–100", seconds: 2.8 } },
   model: MCLAREN_765LT_MODEL,
   targetLength: 4.6,

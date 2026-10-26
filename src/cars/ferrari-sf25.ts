@@ -37,6 +37,7 @@ export const ferrariSf25 = defineCar({
       { label: "Predecessor", value: "SF-24" },
     ],
   },
+  engineModel: "v12",
   model: FERRARI_SF25_MODEL,
   targetLength: 5.4,
   yaw: Math.PI,

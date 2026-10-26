@@ -1,4 +1,4 @@
-import { engineFactoryPaints } from "./engine";
+import { engines } from "./engine";
 
 export type Brand = "ferrari" | "porsche" | "lamborghini" | "chevrolet" | "aston-martin" | "toyota" | "bugatti" | "mclaren" | "audi" | "honda";
 
@@ -127,6 +127,8 @@ export interface CarDefinition {
   doorSound?: string;
   cabin?: CarCabin;
   ignition?: CarIgnitionHotspot;
+  /** Which engine the engine bay shows. */
+  engineModel: EngineId;
   engineBase?: EngineBase;
 }
 
@@ -136,7 +138,9 @@ export interface WheelDefinition {
   model?: string;
 }
 
-export type EngineZoneId = "covers" | "coils" | "sump";
+export type EngineId = "v8" | "v12";
+
+export type EngineZoneId = "covers" | "coils" | "sump" | "headers";
 
 export type ExhaustId = "stock" | "sport" | "straight";
 
@@ -149,7 +153,7 @@ export interface EngineTune {
 }
 
 export interface EngineBuild {
-  paints: Record<EngineZoneId, string>;
+  paints: Partial<Record<EngineZoneId, string>>;
   finish: FinishId;
   tune: EngineTune;
 }
@@ -176,6 +180,8 @@ export function defineWheel(wheel: WheelDefinition): WheelDefinition {
 }
 
 export function createDefaultBuild(car: CarDefinition): CarBuild {
+  // Valve or cam covers start in the car's own colour; the Factory swatch restores the engine's.
+  const carColour = car.defaultPaints.body ?? Object.values(car.defaultPaints)[0];
   return {
     slug: car.slug,
     paints: { ...car.defaultPaints },
@@ -187,7 +193,7 @@ export function createDefaultBuild(car: CarDefinition): CarBuild {
     rideHeight: 0,
     autoRotate: false,
     engine: {
-      paints: { ...engineFactoryPaints },
+      paints: { ...engines[car.engineModel].factoryPaints, ...(carColour && { covers: carColour }) },
       finish: "satin",
       tune: { boost: 0, revLimit: 0, exhaust: "stock" },
     },

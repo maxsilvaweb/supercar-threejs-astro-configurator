@@ -39,6 +39,7 @@ export const chevroletZr1 = defineCar({
       { label: "On sale", value: "2018" },
     ],
   },
+  engineModel: "v8",
   engineBase: { power: 755, powerUnit: "hp", torque: 969, torqueUnit: "Nm", sprint: { label: "0–60", seconds: 2.85 } },
   model: CHEVROLET_ZR1_MODEL,
   targetLength: 4.57,
