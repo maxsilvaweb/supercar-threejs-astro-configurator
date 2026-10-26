@@ -19,3 +19,4 @@ public/models/**/*.glb
 # Vercel link and local secrets
 .vercel
 .env*
+!.env.example
