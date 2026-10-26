@@ -1,4 +1,4 @@
-import { resumeAudio, tapAudio } from "./audio-bus";
+import { isAudioRunning, resumeAudio, tapAudio } from "./audio-bus";
 import { GARAGE_AMBIENCE_STORAGE_KEY, GARAGE_VENT_URL, GARAGE_VENT_VOLUME } from "./constants";
 
 const VOLUME = GARAGE_VENT_VOLUME;
@@ -78,19 +78,26 @@ export function startGarageAmbience(volume = VOLUME) {
   if (!enabled) return;
   const audio = ensureBed();
   tapAudio(audio);
-  void resumeAudio();
   audio.volume = volume;
-  if (!audio.paused && !audio.ended) return;
 
   const resume = () => {
     resumeOnGesture = null;
     if (!enabled) return;
+    void resumeAudio();
     void audio.play().catch(() => {});
   };
 
-  void audio.play().catch(() => {
+  const waitForGesture = () => {
     if (resumeOnGesture) return;
     resumeOnGesture = resume;
     window.addEventListener("pointerdown", resume, { once: true });
-  });
+  };
+
+  // The bed is routed through the shared AudioContext, which stays suspended
+  // until a user gesture — playing the element alone is silent until then.
+  void resumeAudio();
+  if (!isAudioRunning()) waitForGesture();
+  if (!audio.paused && !audio.ended) return;
+
+  void audio.play().catch(waitForGesture);
 }

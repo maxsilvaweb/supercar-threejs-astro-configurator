@@ -109,6 +109,10 @@ export async function resumeAudio() {
   if (graph.ctx.state === "suspended") await graph.ctx.resume().catch(() => {});
 }
 
+export function isAudioRunning() {
+  return ctx?.state === "running";
+}
+
 export function getAnalyser() {
   return ensureGraph().analyser;
 }
