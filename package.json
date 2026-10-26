@@ -5,7 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "bun --bun astro dev",
-    "build": "astro build",
+    "build": "bun scripts/check-models.ts && astro build",
+    "models:upload": "bun scripts/upload-models.ts",
+    "models:sync": "bun scripts/sync-models.ts",
+    "models:check": "bun scripts/check-models.ts",
     "preview": "bun --bun astro preview"
   },
   "dependencies": {
@@ -38,6 +41,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.181.0",
+    "@vercel/blob": "^2.8.2",
     "typescript": "^5.9.3"
   }
 }

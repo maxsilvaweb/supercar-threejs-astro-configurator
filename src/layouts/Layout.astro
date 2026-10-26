@@ -1,6 +1,7 @@
 ---
 import Analytics from "@vercel/analytics/astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
+import { MODEL_ORIGIN } from "../lib/model-url";
 import { SITE_ORIGIN } from "../lib/seo";
 import "../styles/global.css";
 
@@ -42,6 +43,7 @@ const json = jsonLd
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {MODEL_ORIGIN ? <link rel="preconnect" href={MODEL_ORIGIN} crossorigin="anonymous" /> : null}
     <link rel="preload" href="/sounds/menu-click.wav" as="audio" type="audio/wav" crossorigin="anonymous" fetchpriority="high" />
     <link rel="preload" href="/sounds/quick-woosh.mp3" as="audio" type="audio/mpeg" crossorigin="anonymous" fetchpriority="high" />
     <link rel="preload" href="/sounds/studio-garage-entry.mp3" as="audio" type="audio/mpeg" crossorigin="anonymous" fetchpriority="high" />
