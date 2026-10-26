@@ -1,6 +1,7 @@
 ---
 import Analytics from "@vercel/analytics/astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
+import { SITE_ORIGIN } from "../lib/seo";
 import "../styles/global.css";
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
 }
 
 const { title, description, image = "/ui/previews/studio-garage.jpg", jsonLd } = Astro.props;
-const origin = Astro.site ?? new URL("https://supercar-threejs-astra-configurator.vercel.app");
+const origin = Astro.site ?? new URL(SITE_ORIGIN);
 const canonical = new URL(Astro.url.pathname, origin).href;
 const imageUrl = new URL(image, origin).href;
 const json = jsonLd

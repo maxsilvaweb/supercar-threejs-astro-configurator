@@ -16,7 +16,7 @@
 
 A 3D garage in the browser. Walk a warehouse of twelve supercars, pick one, and configure its paint, finish, wheels and aero, then open the door, sit in the cabin and start the engine.
 
-**[▶ Live demo](https://supercar-threejs-astra-configurator.vercel.app/)** · desktop only
+**[▶ Live demo](https://supercar-threejs-astro-configurator.vercel.app/)** · desktop only
 
 ![The studio garage](public/ui/previews/studio-garage.jpg)
 

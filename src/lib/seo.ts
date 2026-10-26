@@ -2,7 +2,7 @@ import { brandLabel } from "../components/overlay/BrandMark";
 import { carPreviewUrl } from "./constants";
 import type { CarDefinition } from "./schema";
 
-export const SITE_ORIGIN = "https://supercar-threejs-astra-configurator.vercel.app";
+export const SITE_ORIGIN = "https://supercar-threejs-astro-configurator.vercel.app";
 export const SITE_NAME = "silvaweb studio";
 export const DEFAULT_OG_IMAGE = carPreviewUrl("studio-garage");
 

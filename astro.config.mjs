@@ -5,7 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: "https://supercar-threejs-astra-configurator.vercel.app",
+  site: "https://supercar-threejs-astro-configurator.vercel.app",
   devToolbar: { enabled: false },
   integrations: [
     react(),
